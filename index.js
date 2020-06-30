@@ -4,6 +4,7 @@
 const path = require('path');
 
 const dotenv = require('dotenv');
+
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
@@ -12,11 +13,15 @@ const restify = require('restify');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter } = require('botbuilder');
+const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
 
 // This bot's main dialog.
 const { Bot } = require('./bots/bot');
 const { MainDialog } = require('./dialogs/mainDialog');
+
+const memoryStorage = new MemoryStorage();
+const conversationState = new ConversationState(memoryStorage);
+const userState = new UserState(memoryStorage);
 
 // Create HTTP server
 const server = restify.createServer();
@@ -60,7 +65,7 @@ adapter.onTurnError = onTurnErrorHandler;
 
 // Create the main dialog.
 const dialog = new MainDialog();
-const bot = new Bot(dialog);
+const bot = new Bot(conversationState, userState, dialog);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {

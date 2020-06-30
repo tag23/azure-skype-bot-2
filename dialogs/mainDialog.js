@@ -3,7 +3,7 @@
 
 const { AttachmentLayoutTypes, CardFactory } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
-const AdaptiveCard = require('../resources/adaptiveCard.json');
+const AllocationCard = require('../resources/AllocationCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 
@@ -46,8 +46,6 @@ class MainDialog extends ComponentDialog {
      * @param {WaterfallStepContext} stepContext
      */
     async choiceCardStep(stepContext) {
-        console.log('MainDialog.choiceCardStep');
-
         // Create the PromptOptions which contain the prompt and re-prompt messages.
         // PromptOptions also contains the list of choices available to the user.
         const options = {
@@ -57,6 +55,7 @@ class MainDialog extends ComponentDialog {
         };
 
         // Prompt the user with the configured PromptOptions.
+        console.log('Step prompt', await stepContext.prompt('cardPrompt', options));
         return await stepContext.prompt('cardPrompt', options);
     }
 
@@ -66,16 +65,16 @@ class MainDialog extends ComponentDialog {
      * @param {WaterfallStepContext} stepContext
      */
     async showCardStep(stepContext) {
-        console.log('MainDialog.showCardStep');
-
+        console.log('Decide done', stepContext.result.value);
         switch (stepContext.result.value) {
-        case 'Google allocation':
-            await stepContext.context.sendActivity({ attachments: [this.createGoogleAllocationCard()] });
+        case 'Allocation':
+            console.log('ALLOCATION');
+            await stepContext.context.sendActivity({ attachments: [this.createAllocationCard()] });
             break;
         default:
             await stepContext.context.sendActivity({
                 attachments: [
-                    this.createGoogleAllocationCard(),
+                    this.createAllocationCard()
                 ],
                 attachmentLayout: AttachmentLayoutTypes.Carousel
             });
@@ -93,24 +92,21 @@ class MainDialog extends ComponentDialog {
      * (Indexes and upper/lower-case variants do not need to be added as synonyms)
      */
     getChoices() {
-        const cardOptions = [
+        return [
             {
-                value: 'Google allocation',
-                synonyms: ['google', 'google allocation']
+                value: 'Allocation',
+                synonyms: ['allocation', 'Allocation']
             }
         ];
-
-        return cardOptions;
     }
 
     // ======================================
     // Helper functions used to create cards.
     // ======================================
 
-    createGoogleAllocationCard() {
-        return CardFactory.adaptiveCard(AdaptiveCard);
+    createAllocationCard() {
+        return CardFactory.adaptiveCard(AllocationCard);
     }
-
 }
 
 module.exports.MainDialog = MainDialog;
