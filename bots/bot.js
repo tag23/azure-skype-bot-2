@@ -21,7 +21,7 @@ class Bot extends ActivityHandler {
 
                 await context.sendActivity(MessageFactory.text(replyText, replyText));
             } else {
-                console.log('1')
+                await context.sendActivity(MessageFactory.text("1", "1"));
             }
             // By calling next() you ensure that the next BotHandler is run.
             await next();
