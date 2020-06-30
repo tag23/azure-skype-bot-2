@@ -13,16 +13,19 @@ class Bot extends ActivityHandler {
         this.echoEnabled = false;
 
         this.onMessage(async (context, next) => {
-            if (context.activity.text.includes('Echo enabled')) this.echoEnabled = true;
-            if (context.activity.text.includes('Echo disabled')) this.echoEnabled = false;
+            // if (context.activity.text.includes('Echo enabled')) this.echoEnabled = true;
+            // if (context.activity.text.includes('Echo disabled')) this.echoEnabled = false;
 
-            if (this.echoEnabled) {
-                const replyText = `Echo: ${ context.activity.text }`;
+            // if (this.echoEnabled) {
+            //     const replyText = `Echo: ${ context.activity.text }`;
 
-                await context.sendActivity(MessageFactory.text(replyText, replyText));
-            } else {
-                await context.sendActivity(MessageFactory.text("1", "1"));
-            }
+            //     await context.sendActivity(MessageFactory.text(replyText, replyText));
+            // } else {
+            //     await context.sendActivity(MessageFactory.text("1", "1"));
+            // }
+            const replyText = `Echo: ${ context.activity.text }`;
+
+            await context.sendActivity(MessageFactory.text(replyText, replyText));
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
