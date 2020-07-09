@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { AttachmentLayoutTypes, CardFactory } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
-const AllocationCard = require('../resources/AllocationCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 
@@ -12,10 +10,10 @@ class MainDialog extends ComponentDialog {
         super('MainDialog');
 
         // Define the main dialog and its related components.
-        this.addDialog(new ChoicePrompt('cardPrompt'));
+        this.addDialog(new ChoicePrompt('allocationPrompt'));
         this.addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
-            this.choiceCardStep.bind(this),
-            this.showCardStep.bind(this)
+            this.choiceAllocationStep.bind(this),
+            this.showAllocationStep.bind(this)
         ]));
 
         // The initial child Dialog to run.
@@ -34,9 +32,11 @@ class MainDialog extends ComponentDialog {
 
         const dialogContext = await dialogSet.createContext(turnContext);
         const results = await dialogContext.continueDialog();
+
         if (results.status === DialogTurnStatus.empty) {
             await dialogContext.beginDialog(this.id);
         }
+
     }
 
     /**
@@ -45,7 +45,7 @@ class MainDialog extends ComponentDialog {
      *
      * @param {WaterfallStepContext} stepContext
      */
-    async choiceCardStep(stepContext) {
+    async choiceAllocationStep(stepContext) {
         // Create the PromptOptions which contain the prompt and re-prompt messages.
         // PromptOptions also contains the list of choices available to the user.
         const options = {
@@ -55,8 +55,7 @@ class MainDialog extends ComponentDialog {
         };
 
         // Prompt the user with the configured PromptOptions.
-        console.log('Step prompt', await stepContext.prompt('cardPrompt', options));
-        return await stepContext.prompt('cardPrompt', options);
+        return await stepContext.prompt('allocationPrompt', options);
     }
 
     /**
@@ -64,20 +63,18 @@ class MainDialog extends ComponentDialog {
      * This method is only called when a valid prompt response is parsed from the user's response to the ChoicePrompt.
      * @param {WaterfallStepContext} stepContext
      */
-    async showCardStep(stepContext) {
-        console.log('Decide done', stepContext.result.value);
+    async showAllocationStep(stepContext) {
         switch (stepContext.result.value) {
-        case 'Allocation':
-            console.log('ALLOCATION');
-            await stepContext.context.sendActivity({ attachments: [this.createAllocationCard()] });
+        case 'Google Allocation':
+            await stepContext.context.sendActivity(this.allocateByGoogle());
+            break;
+        case 'Mass Allocation':
+            await stepContext.context.sendActivity(this.allocateByMass());
+            break;
+        case 'Number Allocation':
+            await stepContext.context.sendActivity(this.allocateByNumber());
             break;
         default:
-            await stepContext.context.sendActivity({
-                attachments: [
-                    this.createAllocationCard()
-                ],
-                attachmentLayout: AttachmentLayoutTypes.Carousel
-            });
             break;
         }
 
@@ -94,8 +91,16 @@ class MainDialog extends ComponentDialog {
     getChoices() {
         return [
             {
-                value: 'Allocation',
-                synonyms: ['allocation', 'Allocation']
+                value: 'Google Allocation',
+                synonyms: ['google', 'google allocation']
+            },
+            {
+                value: 'Mass Allocation',
+                synonyms: ['mass', 'mass allocation']
+            },
+            {
+                value: 'Number Allocation',
+                synonyms: ['number', 'number allocation']
             }
         ];
     }
@@ -104,8 +109,17 @@ class MainDialog extends ComponentDialog {
     // Helper functions used to create cards.
     // ======================================
 
-    createAllocationCard() {
-        return CardFactory.adaptiveCard(AllocationCard);
+    allocateByGoogle() {
+        console.log('Google');
+        return "Google";
+    }
+    allocateByMass() {
+        console.log('Mass');
+        return "Mass";
+    }
+    allocateByNumber() {
+        console.log('Number');
+        return "Number";
     }
 }
 

@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 const { ActivityHandler, MessageFactory } = require('botbuilder');
+const axios = require('axios');
+let isValidAccount;
+const notValidMemberMessage = 'We can\'t identify you. Please contact to support skype';
 
 class Bot extends ActivityHandler {
     constructor(conversationState, userState, dialog) {
@@ -13,22 +16,13 @@ class Bot extends ActivityHandler {
         this.userState = userState;
         this.dialog = dialog;
         this.dialogState = this.conversationState.createProperty('DialogState');
-        this.echoEnabled = false;
-        console.log('User State: ', this.userState);
-        console.log('Conversation State: ', this.conversationState);
-        console.log('Dialog State: ', this.dialogState);
 
         this.onMessage(async (context, next) => {
-            if (context.activity.text.includes('Echo enabled')) this.echoEnabled = true;
-            if (context.activity.text.includes('Echo disabled')) this.echoEnabled = false;
-
-            if (this.echoEnabled) {
-                const replyText = `Echo: ${ context.activity.text }`;
-
-                await context.sendActivity(MessageFactory.text(replyText, replyText));
-            } else {
+            if (isValidAccount)
                 await this.dialog.run(context, this.dialogState);
-            }
+            else
+                await context.sendActivity(MessageFactory.text(notValidMemberMessage, notValidMemberMessage));
+
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
@@ -37,9 +31,22 @@ class Bot extends ActivityHandler {
             const membersAdded = context.activity.membersAdded;
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {
-                    const welcomeText = `Welcome to Premiumy Dialog Bot ${ membersAdded[cnt].name }. This bot provides a allocation.`;
-                    await context.sendActivity(welcomeText);
-                    await context.sendActivity(MessageFactory.text(welcomeText, welcomeText));
+                    const memberName = membersAdded[cnt].name; //process.env.DefaultSkypeName
+                    const request_options = {
+                        url: `http://10.0.22.56/api/v1.0?api_key=${ process.env.BotApiKey }`,
+                        method: 'POST',
+                        data: {'id': null, 'jsonrpc': '2.0', 'method': 'account:get_list', 'params': {'filter': {'messenger': memberName}}},
+                    };
+                    const account_request = await axios(request_options);
+                    const accounts = account_request['data']['result']['account_list'];
+                    isValidAccount = accounts.length === 1 ? accounts.shift() : null;
+
+                    const addMemberMesage = `Welcome to Premiumy Dialog Bot ${ memberName }. This bot provides a allocation.`;
+                    if (isValidAccount) {
+                        await context.sendActivity(MessageFactory.text(addMemberMesage, addMemberMesage));
+                    } else {
+                        await context.sendActivity(MessageFactory.text(notValidMemberMessage, notValidMemberMessage));
+                    }
                 }
             }
             // By calling next() you ensure that the next BotHandler is run.

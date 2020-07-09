@@ -1,6 +1,6 @@
 /* eslint-disable */
 module.exports = {
-    "extends": "standard",
+    "extends": "eslint:recommended",
     "rules": {    
         "semi": [2, "always"],
         "indent": [2, 4],
@@ -11,5 +11,13 @@ module.exports = {
             "asyncArrow": "always"
         }],
         "template-curly-spacing": [2, "always"]
-    }
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "parser": "babel-eslint"
 };
