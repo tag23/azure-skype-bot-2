@@ -5,7 +5,7 @@ const { ActivityHandler, MessageFactory } = require('botbuilder');
 const axios = require('axios');
 let isValidAccount;
 let memberGlobalName;
-const notValidMemberMessage = `We can't identify you ${ memberGlobalName }. Please contact to support skype`;
+
 
 class Bot extends ActivityHandler {
     constructor(conversationState, userState, dialog) {
@@ -17,6 +17,7 @@ class Bot extends ActivityHandler {
         this.userState = userState;
         this.dialog = dialog;
         this.dialogState = this.conversationState.createProperty('DialogState');
+        const notValidMemberMessage = `We can't identify you ${ memberGlobalName }. Please contact to support skype`;
 
         this.onMessage(async (context, next) => {
             if (isValidAccount)
@@ -45,6 +46,8 @@ class Bot extends ActivityHandler {
                     isValidAccount = accounts.length === 1 ? accounts.shift() : null;
 
                     const addMemberMesage = `Welcome to Premiumy Dialog Bot ${ memberName }. This bot provides a allocation.`;
+                    const notValidMemberMessage = `We can't identify you ${ memberGlobalName }. Please contact to support skype`;
+
                     if (isValidAccount) {
                         await context.sendActivity(MessageFactory.text(addMemberMesage, addMemberMesage));
                     } else {
