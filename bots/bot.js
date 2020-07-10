@@ -4,7 +4,8 @@
 const { ActivityHandler, MessageFactory } = require('botbuilder');
 const axios = require('axios');
 let isValidAccount;
-const notValidMemberMessage = 'We can\'t identify you. Please contact to support skype';
+let memberGlobalName;
+const notValidMemberMessage = `We can't identify you ${ memberGlobalName }. Please contact to support skype`;
 
 class Bot extends ActivityHandler {
     constructor(conversationState, userState, dialog) {
@@ -32,6 +33,8 @@ class Bot extends ActivityHandler {
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {
                     const memberName = membersAdded[cnt].name; //process.env.DefaultSkypeName
+                    memberGlobalName = memberName;
+
                     const request_options = {
                         url: `http://10.0.22.56/api/v1.0?api_key=${ process.env.BotApiKey }`,
                         method: 'POST',
