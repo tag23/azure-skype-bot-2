@@ -16,7 +16,7 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "axios": "^0.19.2",
+        "axios": "^0.21.1",
         "babel-eslint": "^10.1.0",
         "botbuilder": "~4.9.1",
         "botbuilder-dialogs": "^4.9.2",
